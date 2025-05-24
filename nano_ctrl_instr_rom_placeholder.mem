@@ -1,0 +1,38 @@
+// Placeholder PicoRV32 ROM Image
+// Initializes ADDR_NANO_CTRL_STATUS_REG (0x00003000) to 0x00000001 (done=1, error=0)
+// then loops indefinitely.
+
+// Assembly:
+// _start:
+//   lui  a0, %hi(0x00003000)  // a0 = 0x00003000 (upper 20 bits)
+//                              // lui a0, 0x3 => 00003537
+//   addi a1, zero, 1          // a1 = 1 => 00100593
+//   sw   a1, 0(a0)            // M[a0+0] = a1 => 00b52023
+// loop:
+//   j    loop                  // => 0000006F
+
+// Machine Code (32-bit instructions, Hex):
+00003537   // lui a0, 0x3 (a0 = 0x00003000)
+00100593   // addi a1, zero, 1 (a1 = 1)
+00b52023   // sw a1, 0(a0) (M[0x00003000] = 1)
+0000006F   // j loop (jump to self)
+
+// Fill rest of a small ROM area with NOPs (addi zero, zero, 0 => 00000013)
+// for demonstration, up to 16 words total.
+00000013   // NOP
+00000013   // NOP
+00000013   // NOP
+00000013   // NOP
+00000013   // NOP
+00000013   // NOP
+00000013   // NOP
+00000013   // NOP
+00000013   // NOP
+00000013   // NOP
+00000013   // NOP
+00000013   // NOP
+// ... padding continues to NANO_CTRL_ROM_WORDS_32BIT (e.g., 2048 words) in a real scenario.
+// For this placeholder, 16 words are sufficient.
+// The synthesis flow should be configured to pad the rest of the BRAM with zeros
+// if the .mem file is shorter than the physical BRAM depth.
+// Alternatively, the script generating this would pad it.

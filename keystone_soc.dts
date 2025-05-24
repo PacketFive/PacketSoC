@@ -1,0 +1,114 @@
+/dts-v1/;
+
+/ {
+    #address-cells = <1>;
+    #size-cells = <1>;
+    compatible = "keystone,soc", "simple-bus";
+    model = "Keystone SoC with CVA6 and eBPF Coprocessor";
+
+    aliases {
+        serial0 = &uart0;
+    };
+
+    chosen {
+        bootargs = "console=ttyS0,115200 root=/dev/ram0 rw earlycon"; // Added earlycon for early messages
+        stdout-path = "serial0:115200n8";
+        // stdin-path = "serial0:115200n8"; // Optional
+    };
+
+    cpus {
+        #address-cells = <1>;
+        #size-cells = <0>;
+        timebase-frequency = <10000000>; // Example: 10 MHz (Typical for CLINT MTIME)
+                                         // This should match the clock feeding the CLINT's MTIME register
+
+        cpu@0 {
+            device_type = "cpu";
+            compatible = "ariane,cva6", "riscv"; // More specific first, then generic
+            riscv,isa = "rv64imafdcsu"; // Standard CVA6 configuration
+            mmu-type = "riscv,sv39";
+            reg = <0>; // Hart ID 0
+            clock-frequency = <100000000>; // Example: 100 MHz for the CPU core
+
+            interrupt-controller { // CPU's local interrupt lines
+                #interrupt-cells = <1>;
+                compatible = "riscv,cpu-intc";
+                interrupt-controller;
+            };
+        };
+    };
+
+    soc { // Optional 'soc' node, can also place peripherals at root
+        compatible = "simple-bus";
+        #address-cells = <1>;
+        #size-cells = <1>;
+        ranges; // Indicates direct mapping to parent address space
+
+        memory@80000000 {
+            device_type = "memory";
+            reg = <0x80000000 0x40000000>; // 1 GB Main Memory (DRAM)
+        };
+
+        clint@2000000 { // Core Local Interruptor
+            compatible = "riscv,clint0";
+            reg = <0x02000000 0xc000>; // Base 0x02000000, Size 48KB (for mtimecmp, mtime, msip per hart)
+            interrupts-extended = < // Hart 0 M-mode and S-mode interrupts
+                &cpu_intc0 3  // Machine software interrupt (MSIP) -> CPU M-mode IRQ line 3
+                &cpu_intc0 7  // Machine timer interrupt (MTIP)   -> CPU M-mode IRQ line 7
+                // For supervisor mode, if OS runs in S-mode and uses CLINT directly:
+                // &cpu_intc0 1  // Supervisor software interrupt (SSIP)
+                // &cpu_intc0 5  // Supervisor timer interrupt (STIP)
+            >;
+            // Number of harts not strictly needed by driver if it uses hartid from CSR
+        };
+
+        plic@c000000 { // Platform-Level Interrupt Controller
+            compatible = "sifive,plic-1.0.0", "riscv,plic0"; // sifive compatible is common
+            reg = <0x0C000000 0x4000000>;  // Base 0x0C000000, Size 64MB (Typical PLIC size, can be smaller)
+            riscv,ndev = <32>;             // Number of interrupt sources (e.g., 32 PLIC sources)
+            interrupts-extended = <&cpu_intc0 11 &cpu_intc0 9>; // M-mode external, S-mode external
+            #interrupt-cells = <1>;
+            #address-cells = <0>; // No child address space for PLIC itself for interrupts property
+            interrupt-controller;
+        };
+
+        keystone_copro@10000000 {
+            compatible = "keystone,coprocessor-v1";
+            reg = <0x10000000 0x1000>;    // CSR Base 0x10000000, Size 4KB
+            interrupts = <2>;             // PLIC Source ID 2 (example)
+            interrupt-parent = <&plic>;
+            num-vm-slots = <8>;
+            num-mailbox-regs = <4>;
+            // clock-frequency = <...>; // If coprocessor has its own clock different from bus
+        };
+
+        uart0: serial@2010000 { // UART, placed after CLINT in peripheral region
+            compatible = "ns16550a"; // Standard compatible string
+            reg = <0x02010000 0x100>;     // Base 0x02010000, Size 256 bytes (typical for UART regs)
+            interrupts = <1>;             // PLIC Source ID 1 (example)
+            interrupt-parent = <&plic>;
+            clock-frequency = <50000000>; // Example: 50 MHz peripheral clock
+            // current-speed = <115200>;  // Optional, can be set by bootloader/kernel
+            // reg-shift = <0>;          // Or <2> if registers are word-aligned with 4-byte spacing
+            // reg-io-width = <1>;       // Or <4> if registers are 32-bit wide on 32-bit bus
+        };
+
+        // Placeholder for other generic peripherals if they were fully defined
+        // E.g. GPIO controller, SPI controller, etc.
+        // generic_peripherals@2020000 {
+        //     compatible = "simple-bus";
+        //     reg = <0x02020000 0xE000>; // Remaining space in 0x0200_xxxx - 0x020F_xxxx
+        // };
+
+    }; // End soc node
+
+    // CPU interrupt controller node (referenced by clint and plic)
+    // This is for the CPU's own interrupt input lines (like MTIM, MSIP, SEXT, etc.)
+    // The name 'cpu_intc0' is arbitrary but must match references.
+    cpu_intc0: interrupt-controller@0 {
+        #interrupt-cells = <1>;
+        compatible = "riscv,cpu-intc";
+        interrupt-controller;
+    };
+
+};
