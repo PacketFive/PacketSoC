@@ -1,8 +1,8 @@
-# FPGA Synthesis and Deployment Plan: Keystone SoC on Microchip PolarFire
+# FPGA Synthesis and Deployment Plan: KESTREL-V SoC on Microchip PolarFire
 
 ## 0. Document Purpose
 
-This document outlines the plan for synthesizing the Keystone SoC design, targeting a Microchip PolarFire SoC FPGA, and the subsequent board bring-up and testing strategy.
+This document outlines the plan for synthesizing the KESTREL-V SoC design, targeting a Microchip PolarFire SoC FPGA, and the subsequent board bring-up and testing strategy.
 
 ## 1. FPGA Design Flow Setup
 
@@ -178,7 +178,7 @@ The generic RTL stubs used for simulation will need to be replaced or configured
 2.  **Reset the Board:** Apply a hard reset or power cycle.
 3.  **Observe UART Output:**
     *   The CVA6 CPU should start executing from the Boot ROM (BRAM initialized with `boot_content.hex`).
-    *   The initial Boot ROM code should initialize the UART (part of `Peripherals_Stub.v` or a fabric UART IP) and print a "Hello, Keystone SoC!" message.
+    *   The initial Boot ROM code should initialize the UART (part of `Peripherals_Stub.v` or a fabric UART IP) and print a "Hello, KESTREL-V SoC!" message.
     *   Verify this message appears correctly in the terminal emulator.
     *   **Debug:** If no output, check clocks, reset to UART, UART pin assignments, baud rate settings, and Boot ROM content. Use JTAG/SmartDebug to trace CVA6 execution from reset.
 
@@ -263,4 +263,4 @@ This requires the Linux system to be booted and the Keystone kernel driver to be
 *   **Full System Integration:** Ensuring all components (CVA6, Keystone, Interconnect, Peripherals, Memory) work together correctly as a cohesive system.
 *   **Driver and Software Bring-up:** Debugging issues that span hardware/software boundaries (e.g., kernel driver interaction with Keystone CSRs and interrupts).
 
-This plan provides a structured approach to tackling the FPGA deployment of the Keystone SoC. Flexibility and iterative refinement will be key to addressing the challenges encountered.
+This plan provides a structured approach to tackling the FPGA deployment of the KESTREL-V SoC. Flexibility and iterative refinement will be key to addressing the challenges encountered.

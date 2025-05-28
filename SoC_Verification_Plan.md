@@ -2,7 +2,7 @@
 
 ## 0. Document Purpose
 
-This document outlines the verification strategy, testbench architecture, key verification areas, and specific test cases for the System-on-Chip (SoC) design featuring the CVA6 CPU core and the Keystone Coprocessor.
+This document outlines the verification strategy, testbench architecture, key verification areas, and specific test cases for the KESTREL-V SoC design featuring the CVA6 CPU core and the Keystone Coprocessor.
 
 ## 1. Testbench Architecture Overview
 
@@ -93,9 +93,9 @@ The verification effort will focus on the following key features and modules:
 
 The following test cases will be developed. (Note: "CPU" refers to `CVA6_Core_Stub.v` actions, which may be direct AXI transactions for these tests).
 
-**TC1: SoC Boot & CVA6 Stub Basic Execution**
+**TC1: KESTREL-V SoC Boot & CVA6 Stub Basic Execution**
 
-*   **Objective:** Verify that the SoC comes out of reset, the CVA6 CPU stub starts fetching from the Boot ROM, and can perform a basic peripheral access (e.g., write to a conceptual UART TX register in `Peripherals_Stub.v`).
+*   **Objective:** Verify that the KESTREL-V SoC comes out of reset, the CVA6 CPU stub starts fetching from the Boot ROM, and can perform a basic peripheral access (e.g., write to a conceptual UART TX register in `Peripherals_Stub.v`).
 *   **Prerequisites:**
     *   `Boot_ROM_Stub.v` contains valid initial instructions (e.g., a sequence to write a character to the UART TX register address via AXI).
 *   **Stimulus Sequence:**
@@ -284,7 +284,7 @@ The following test cases will be developed. (Note: "CPU" refers to `CVA6_Core_St
     *   Review of log files.
     *   Modular design of the testbench and DUT allows for focused debugging.
 
-This test plan provides a foundational strategy. It will be updated and expanded as the SoC design and verification environment mature.I have created the `SoC_Verification_Plan.md` document.
+This test plan provides a foundational strategy. It will be updated and expanded as the KESTREL-V SoC design and verification environment mature.
 
 It includes:
 1.  **Testbench Architecture Overview:** Details components like the DUT (`SoC_Top`), Clock/Reset Generators, conceptual AXI BFMs (leveraging existing stubs like `CVA6_Core_Stub` and `Main_Memory_Ctrl_Stub`), and Peripheral Monitors (UART). It also outlines how test sequences will be coordinated using SystemVerilog.
