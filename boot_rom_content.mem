@@ -1,0 +1,41 @@
+// Boot ROM Content for CVA6 CPU
+// Total Depth: 16384 words (64KB)
+//
+// Initial program: Jump to 0x80000000 (Main Memory Base)
+80000537   // lui a0, 0x80000 (loads upper 20 bits of 0x80000000 into a0)
+00050513   // addi a0, a0, 0  (a0 = a0 + 0; effectively a0 = 0x80000000)
+000500E7   // jalr zero, a0, 0 (jump to address in a0)
+// Padding with NOPs (addi zero, zero, 0  => 0x00000013)
+00000013   // NOP
+00000013   // NOP
+00000013   // NOP
+00000013   // NOP
+00000013   // NOP
+00000013   // NOP
+00000013   // NOP
+00000013   // NOP
+00000013   // NOP
+00000013   // NOP
+00000013   // NOP
+00000013   // NOP
+00000013   // NOP
+// ... (Lines 16 to 31, total 16 NOPs after initial 3 instructions for this sample)
+00000013
+00000013
+00000013
+00000013
+00000013
+00000013
+00000013
+00000013
+00000013
+00000013
+00000013
+00000013
+00000013
+00000013
+00000013
+00000013
+// NOTE: This file should be padded with 00000013 (NOP)
+// up to 16384 lines for the full 64KB Boot ROM.
+// For brevity in this example, only the first 32 words are shown.

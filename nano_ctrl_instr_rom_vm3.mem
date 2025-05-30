@@ -1,0 +1,49 @@
+// Nano-controller VM3 Instruction ROM Content
+// Source: nano_ctrl_instr_rom_placeholder.mem
+// Total Depth: 2048 words (8KB)
+//
+// Placeholder program: Sets 'done' bit in a status register.
+// Assembly:
+// _start:
+//   lui  a0, %hi(0x00003000)  // ADDR_NANO_CTRL_STATUS_REG
+//   addi a1, zero, 1          // value to write (done=1)
+//   sw   a1, 0(a0)            // write to status reg
+// loop:
+//   j    loop
+00003537   // lui a0, 0x3 (a0 = 0x00003000)
+00100593   // addi a1, zero, 1 (a1 = 1)
+00b52023   // sw a1, 0(a0) (M[0x00003000] = 1)
+0000006F   // j loop (jump to self)
+// Padding with NOPs (addi zero, zero, 0  => 0x00000013)
+00000013   // NOP
+00000013   // NOP
+00000013   // NOP
+00000013   // NOP
+00000013   // NOP
+00000013   // NOP
+00000013   // NOP
+00000013   // NOP
+00000013   // NOP
+00000013   // NOP
+00000013   // NOP
+00000013   // NOP
+// ... (Lines 16 to 31 for this sample, total 28 NOPs)
+00000013
+00000013
+00000013
+00000013
+00000013
+00000013
+00000013
+00000013
+00000013
+00000013
+00000013
+00000013
+00000013
+00000013
+00000013
+00000013
+// NOTE: This file should be padded with 00000013 (NOP)
+// up to 2048 lines for the full 8KB Nano-controller ROM.
+// For brevity in this example, only the first 32 words are shown.

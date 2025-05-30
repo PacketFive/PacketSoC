@@ -1,0 +1,27 @@
+== SoC Memory Map ==
+
+Default AXI Data Width: 32 bits
+
+Region                      | Start Address | End Address   | Size     | AXI Type  | Notes
+----------------------------|---------------|---------------|----------|-----------|----------------------------------------------------
+Boot ROM                    | 0x0001_0000   | 0x0001_FFFF   | 64 KB    | AXI-Lite* | For CPU initial boot code. *Typically direct or simpler bus.
+Generic Peripherals         | 0x0200_0000   | 0x0200_FFFF   | 64 KB    | AXI-Lite  | UART, Timer, GPIO, etc.
+Keystone Coprocessor CSRs   | 0x1000_0000   | 0x1000_0FFF   | 4 KB     | AXI-Lite  | Control/Status Registers for Keystone Coprocessor.
+Main Memory (DRAM)          | 0x8000_0000   | 0xBFFF_FFFF   | 1 GB     | AXI4 Full | Main system memory.
+
+**Notes:**
+
+1.  **Boot ROM:** While listed as AXI-Lite for interconnect purposes, in a real system, the CPU might have a dedicated boot interface that directly accesses the Boot ROM at address `0x0000_0000` or another designated boot address (like `0x00010000` after reset). For this design, we'll assume it's accessible via the AXI interconnect for simplicity if the CPU's boot sequence allows fetching from this address.
+2.  **Address Alignment:** All regions are assumed to be aligned to their size or appropriate AXI boundaries.
+3.  **Keystone Coprocessor CSRs:** The size (4KB) matches the typical page size and provides ample space for the registers defined in `AXI_Lite_Memory_Map.txt` for the coprocessor.
+4.  **Generic Peripherals:** A 64KB region is allocated. Specific peripherals will be mapped within this space.
+5.  **Main Memory:** 1GB is a common size for embedded SoCs capable of running Linux or complex applications.
+6.  **AXI Types:**
+    *   **AXI4 Full:** Used for high-throughput access, typically for memory.
+    *   **AXI-Lite:** Used for simpler, register-based access to control/status registers or low-bandwidth peripherals.
+7.  **Unmapped Regions:** Accesses to addresses outside these defined regions should result in an AXI error response (DECERR).
+
+This memory map will guide the design of the AXI interconnect's address decoding logic.
+The CVA6 CPU will typically start fetching instructions from the Boot ROM address after reset.
+The Keystone Coprocessor's DMA will primarily interact with Main Memory.
+The CVA6 CPU will interact with Keystone Coprocessor CSRs, Main Memory, and Generic Peripherals.
