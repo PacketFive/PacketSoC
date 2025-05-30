@@ -1,4 +1,4 @@
-# Linux Porting and QEMU Emulation Plan for Keystone SoC
+# Linux Porting and QEMU Emulation Plan for KESTREL-V SoC
 
 ## 0. Document Purpose
 
@@ -19,7 +19,7 @@ This document outlines the strategy and planning for porting Linux to the custom
 #### 1.1.2. U-Boot (Second-Stage Bootloader)
 *   **Porting to CVA6:**
     *   Obtain a recent U-Boot source tree.
-    *   Create a new board configuration for our SoC (e.g., `configs/keystone_soc_defconfig`).
+    *   Create a new board configuration for our SoC (e.g., `configs/kestrel_v_soc_defconfig`).
     *   Configure U-Boot for a generic RISC-V 64-bit (`rv64gc`) target, matching the CVA6 core.
     *   Adapt or implement necessary low-level drivers within U-Boot:
         *   **Timer:** For delays and scheduling (a generic RISC-V timer or a custom one if present in `Peripherals_Stub.v`).
@@ -87,7 +87,7 @@ This is a custom driver.
 A `.dts` (Device Tree Source) file will describe the hardware to the Linux kernel.
 
 *   **Key Components:**
-    *   **Root Node:** `compatible = "keystone,soc"; model = "Keystone SoC"; #address-cells = <1>; #size-cells = <1>;`
+    *   **Root Node:** `compatible = "keystone,soc"; model = "KESTREL-V SoC"; #address-cells = <1>; #size-cells = <1>;`
     *   **CPUs:** Define CVA6 core(s) (`compatible = "ariane,cva6"; riscv,isa = "rv64gc";`). Include CLINT if present.
     *   **Memory:** Define main DRAM region (`device_type = "memory"; reg = <0x80000000 0x40000000>;` for 1GB).
     *   **Keystone Coprocessor:**
@@ -119,8 +119,8 @@ A `.dts` (Device Tree Source) file will describe the hardware to the Linux kerne
 ## 2. QEMU Emulation Environment Setup
 
 ### 2.1. QEMU Machine Definition
-*   A new machine type (e.g., `keystone-soc-machine`) will be added to QEMU.
-*   This involves creating a new C file in `hw/riscv/` (e.g., `keystone_soc.c`).
+*   A new machine type (e.g., `kestrel-v-soc-machine`) will be added to QEMU.
+*   This involves creating a new C file in `hw/riscv/` (e.g., `kestrel_v_soc.c`).
 *   The machine definition function will:
     *   Instantiate the CVA6 CPU model (or a generic RISC-V CPU model initially).
     *   Define the memory map (`SoC_Memory_Map.txt`).
@@ -167,12 +167,12 @@ A new QEMU device model (e.g., `hw/misc/keystone_copro.c`) will be created.
 
 ### 2.5. Boot Process in QEMU
 *   **U-Boot:**
-    *   Compile U-Boot for the `keystone-soc-machine`.
+    *   Compile U-Boot for the `kestrel-v-soc-machine`.
     *   Load U-Boot binary using QEMU's `-bios` option or as a general memory load if FSBL is part of the QEMU machine model.
 *   **Kernel, DTB, Rootfs:**
     *   QEMU command line:
         *   `-kernel path/to/Image` (Linux kernel image)
-        *   `-dtb path/to/keystone_soc.dtb`
+        *   `-dtb path/to/kestrel_v_soc.dtb`
         *   `-initrd path/to/rootfs.cpio.gz` (for initramfs) or `-drive file=rootfs.ext4,format=raw,id=hd0 -device virtio-blk-device,drive=hd0` (for block device).
     *   U-Boot can also be configured to load these from memory addresses where QEMU has preloaded them (e.g., via `-device loader,...` options).
 
